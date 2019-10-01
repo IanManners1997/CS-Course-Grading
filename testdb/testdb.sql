@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 01, 2019 at 05:53 PM
+-- Generation Time: Oct 01, 2019 at 06:09 PM
 -- Server version: 10.4.6-MariaDB
 -- PHP Version: 7.3.9
 
@@ -101,18 +101,6 @@ INSERT INTO `sections` (`id`, `data`) VALUES
 (0, 'testtttt'),
 (1, 'TESTDATA');
 
--- --------------------------------------------------------
-
---
--- Table structure for table `testrel`
---
-
-CREATE TABLE `testrel` (
-  `id1` int(11) NOT NULL,
-  `id2` int(11) NOT NULL,
-  `id3` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
 --
 -- Indexes for dumped tables
 --
@@ -142,13 +130,6 @@ ALTER TABLE `relations`
 --
 ALTER TABLE `sections`
   ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `testrel`
---
-ALTER TABLE `testrel`
-  ADD KEY `grader` (`id2`),
-  ADD KEY `instructor` (`id3`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -183,13 +164,6 @@ ALTER TABLE `relations`
   ADD CONSTRAINT `Grader id` FOREIGN KEY (`grader_id`) REFERENCES `graders` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `Instructor id` FOREIGN KEY (`instructor_id`) REFERENCES `instructors` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `section id` FOREIGN KEY (`section_id`) REFERENCES `sections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `testrel`
---
-ALTER TABLE `testrel`
-  ADD CONSTRAINT `grader` FOREIGN KEY (`id2`) REFERENCES `graders` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE,
-  ADD CONSTRAINT `instructor` FOREIGN KEY (`id3`) REFERENCES `instructors` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
