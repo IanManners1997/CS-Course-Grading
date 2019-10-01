@@ -36,12 +36,22 @@
         echo ' query error: ' . mysqli_error($conn);
     }*/
     //create relationship
-    $sql = "INSERT INTO `relations` (`id`, `section_id`, `grader_id`, `instructor_id`) VALUES ('1', '1', '2', '1')";
+    /*$sql = "INSERT INTO `relations` (`section_id`, `grader_id`, `instructor_id`) VALUES ('1', '2', '1')";
     if(mysqli_query($conn, $sql)){
         echo 'section inserted';
     }else{
         echo ' query error: ' . mysqli_error($conn);
-    }
+    }*/
+    $sql = "SELECT section_id FROM relations WHERE grader_id=2 AND instructor_id=1";
+    $result = mysqli_query($conn, $sql);
+    //fetch result
+    $sectionID = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    //echo to screen
+    echo 'Section id is: ';
+    print_r($result);
+    print_r($sectionID);
+    //free result
+    mysqli_free_result($result);
    //close connection
     mysqli_close($conn);
 ?>
