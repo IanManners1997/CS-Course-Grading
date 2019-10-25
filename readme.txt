@@ -58,6 +58,9 @@ If more than two arguments are passed in, it will return an error.
 If the only the Teacher ID is passed in, it will return all sections for that teacher.
 If both the teacher and grader ID are passed in, it will return the section for the grader.
 
+getStudents($section_number)
+returns an array of student IDs in that section
+
 studentsToFile(section_id)
 Grabs all student IDs within a section and writes them to a txt file named "students.txt"
 

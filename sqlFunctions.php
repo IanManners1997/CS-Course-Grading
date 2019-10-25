@@ -246,6 +246,21 @@
         }
         mysqli_free_result($result);
     }
+    function getStudents($section){
+        require('db_connect.php');
+        $sql = "SELECT student_id FROM to_student WHERE section_id=$section";
+        $result = mysqli_query($conn, $sql);
+        $arr;
+        $i = 0;
+        while($student = $result->fetch_assoc()){
+            $sid = $student['student_id'];
+            $sql = "SELECT login FROM Students where id=$sid";
+            $res2 = mysqli_query($conn, $sql);
+            $arr[$i] = $res2->fetch_assoc()['login'];
+            $i++;
+        }
+        return $arr;
+    }
     function studentsToFile($section){
 
     }
