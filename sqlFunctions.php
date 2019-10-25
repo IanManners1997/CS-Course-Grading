@@ -3,8 +3,10 @@
         require("db_connect.php");
         $handle = fopen("test.txt", "r");
         while(($line = fgets($handle)) !== false){
+            //look for the start of a section
             if(strpos($line, "{")){
                 for($i = 0; $i < 5; $i++){
+                    //split the section
                     switch($i % 5){
                         case 0:
                             preg_match_all('!\d+!', $line, $section);
@@ -33,6 +35,7 @@
                                 echo ltrim(rtrim($student));
                                 echo "<br>";
                             }
+
                             //add to database
                             //First check if section exists
                             echo "Checking if session exists" . "<br>";
@@ -42,9 +45,9 @@
                             $x = $result->fetch_assoc()['section_id'];
                             mysqli_free_result($result);
                             if($x){
-                                echo "Section exists.";
+                                //echo "Section exists.";
                             }else{
-                                echo "section does not exist.";
+                                //echo "Section does not exist.";
                                 //add the section
                                 $sql = "INSERT INTO Sections (section_id)
                                 VALUES ('$s')";
@@ -61,8 +64,7 @@
                             $sql = "SELECT DISTINCT login FROM Instructors WHERE login LIKE '%$tID%'";
                             $result = mysqli_query($conn, $sql);
                             if($result->fetch_assoc()['login']){
-                                echo 'teacher exists';
-                                echo '<br>';
+                                //echo 'teacher exists' . '<br>';
                             }else{
                                 echo 'Teacher does not exist <br>';
                                 //add the teacher
@@ -76,6 +78,7 @@
                                 }
                             }
                             mysqli_free_result($result);
+                            //get the databases id for the teacher
                             $sql = "SELECT id FROM Instructors WHERE login LIKE '%$tID%'";
                             $result = mysqli_query($conn, $sql);
                             $tSQLID = $result->fetch_assoc()['id'];
@@ -98,10 +101,12 @@
                                 }
                             }
                             mysqli_free_result($result);
+                            //get the ID from the database for the grader
                             $sql = "SELECT DISTINCT id FROM Graders WHERE login LIKE '%$gID%'";
                             $result = mysqli_query($conn, $sql);
                             $gSQLID = $result->fetch_assoc()['id'];
                             //create the to section relationship
+                            //using the # id from the database for teacher and grader
                             $sql = "INSERT INTO to_section (section_id, instructor_id, grader_id)
                                 VALUES ('$s', '$tSQLID', '$gSQLID')";
                             mysqli_free_result($result);
@@ -119,8 +124,7 @@
                                 $st = $result->fetch_assoc()['login'];
                                 mysqli_free_result($result);
                                 if($st){
-                                    echo 'student exists ' . $st;
-                                    echo '<br>';
+                                    echo 'student exists ' . $st . '<br>';
                                 }else{
                                     echo $student . ' student does not exist <br>';
                                     //add the student
@@ -187,10 +191,12 @@
             if($i > 2)
                 break;
         }
+        //return if no arguments were passed in
         if($i == 0){
-            echo "No arguments were passed in. Please pass in either teacher ID or teacher and grader ID";
+            echo "No arguments were passed in. Please pass in either teacher ID or teacher and grader ID <br>";
             return false;
         }
+        //get the teacher ID from the database
         $sql = "SELECT id FROM Instructors WHERE login LIKE '%$tID%'";
         $result = mysqli_query($conn, $sql);
         $tNum = $result->fetch_assoc()['id'];
@@ -198,6 +204,7 @@
             echo 'Teacher does not exist <br>';
             return false;
         }
+        //if a grader id was passed in make sure it exists
         if($gID){
             $sql = "SELECT id FROM Graders WHERE login LIKE '%$gID%'";
             $result = mysqli_query($conn, $sql);
@@ -206,6 +213,8 @@
                 echo 'Grader does not exist <br>';
                 return false;
             }
+            //have teacher and grader ID from database
+            //get the section number
             $sql = "SELECT section_id FROM to_section WHERE grader_id=$gNum AND instructor_id=$tNum";
             $result = mysqli_query($conn, $sql);
             if($result){
@@ -216,14 +225,17 @@
             }
             echo "<br>";
         }else{
+            //only teacher id was passed in
             $sql = "SELECT section_id FROM to_section WHERE instructor_id=$tNum";
             $result = mysqli_query($conn, $sql);
             $arr;
             $i = 0;
+            //for each result add it to an array
             while($x = $result->fetch_assoc()){
                 $arr[$i] = $x['section_id'];
                 $i++;
             }
+            //if any results are found return them
             if($arr){
                 return $arr;
             }else{
