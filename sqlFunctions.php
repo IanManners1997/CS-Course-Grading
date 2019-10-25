@@ -158,8 +158,75 @@
         }
         fclose($handle);
     }
-    function getSection($args){
-
+    function getSection(){
+        require('db_connect.php');
+        $tID = NULL;
+        $gID = NULL;
+        $tNum = NULL;
+        $gNum = NULL;
+        $i = 0;
+        foreach(func_get_args() as $arg){
+            //only allow two arguments first being teacher id second be grader id
+            switch($i){
+                case 0: 
+                    $tID = $arg;
+                    break;
+                case 1:
+                    $gID = $arg;
+                    break;
+                default:
+                    $b = true;
+                    break;
+            }
+            $i++;
+            if($i > 2)
+                break;
+        }
+        if($i == 0){
+            echo "No arguments were passed in. Please pass in either teacher ID or teacher and grader ID";
+            return false;
+        }
+        $sql = "SELECT id FROM Instructors WHERE login LIKE '%$tID%'";
+        $result = mysqli_query($conn, $sql);
+        $tNum = $result->fetch_assoc()['id'];
+        if(!$tNum){
+            echo 'Teacher does not exist <br>';
+            return false;
+        }
+        if($gID){
+            $sql = "SELECT id FROM Graders WHERE login LIKE '%$gID%'";
+            $result = mysqli_query($conn, $sql);
+            $gNum = $result->fetch_assoc()['id'];
+            if(!$gNum){
+                echo 'Grader does not exist <br>';
+                return false;
+            }
+            $sql = "SELECT section_id FROM to_section WHERE grader_id=$gNum AND instructor_id=$tNum";
+            $result = mysqli_query($conn, $sql);
+            if($result){
+                return $result->fetch_assoc()['section_id'];
+            }else{
+                echo 'No section found.';
+                return false;
+            }
+            echo "<br>";
+        }else{
+            $sql = "SELECT section_id FROM to_section WHERE instructor_id=$tNum";
+            $result = mysqli_query($conn, $sql);
+            $arr;
+            $i = 0;
+            while($x = $result->fetch_assoc()){
+                $arr[$i] = $x['section_id'];
+                $i++;
+            }
+            if($arr){
+                return $arr;
+            }else{
+                echo 'No section found.';
+                return false;
+            }
+            echo "<br>";
+        }
     }
     function studentsToFile($section){
 
