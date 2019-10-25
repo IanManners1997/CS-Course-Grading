@@ -1,7 +1,6 @@
 <?php
-    require('db_connect.php');
-
     function addSections($filename){
+        require("db_connect.php");
         $handle = fopen("test.txt", "r");
         while(($line = fgets($handle)) !== false){
             if(strpos($line, "{")){
