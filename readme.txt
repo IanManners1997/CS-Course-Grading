@@ -69,4 +69,4 @@ addStudent(student_id, section_id)
 adds a student to a section
 if the student already exists it will return false.
 If the student is successfully added, return true.
-
+the section MUST already exist.

@@ -131,7 +131,8 @@
                                     echo "This student already exists in the section. Student:" . $student . " Section: " . $s . "<br>";
                                 }
                                 mysqli_free_result($result);
-                            }      
+                            } 
+                        //END CASE 4     
                         break;
                     }
                 }
@@ -267,7 +268,48 @@
         fclose($handle);
     }
     function addStudent($id, $section){
-        
+        require("db_connect.php");
+        //trim the id of whitespace
+        $id = ltrim(rtrim($id)); 
+        //check and see if the student exists
+        $sql = "SELECT DISTINCT login FROM Students WHERE login LIKE '%$id%'";
+        $result = mysqli_query($conn, $sql);
+        $st = $result->fetch_assoc()['login'];
+        mysqli_free_result($result);
+        if($st){
+            //echo 'student exists ' . $st;
+            //echo '<br>';
+        }else{
+            //add the student
+            $sql = "INSERT INTO Students (login)
+            VALUES ('$id')";
+            if ($conn->query($sql) === TRUE) {
+                echo "New record created successfully <br>";
+            } else {
+                echo "Error: " . $sql . "<br>" . $conn->error . "<br>";
+            }
+        }
+        //add the student to the section
+        $sql = "SELECT id FROM Students WHERE login LIKE '%$id%'";
+        $result = mysqli_query($conn, $sql);
+        $stID = $result->fetch_assoc()['id'];
+        mysqli_free_result($result);
+        //check if the student is already within the section
+        $sql = "SELECT prim_id FROM to_student WHERE student_id=$stID AND section_id=$section";
+        $result = mysqli_query($conn, $sql);
+        if(!$result->fetch_assoc()){
+            $sql = "INSERT INTO to_student (student_id, section_id)
+            VALUES ('$stID', '$section')";
+
+            if ($conn->query($sql) === TRUE) {
+                //echo "New record created successfully <br>";
+            } else {
+                echo "Error: " . $sql . "<br>" . $conn->error . "<br>";
+            }
+        }else{
+            echo "This student already exists in the section. Student:" . $id . " Section: " . $section . "<br>";
+        }
+        mysqli_free_result($result);
     }
     //EXAMPLE USES OF EACH FUNCTION
     /*
