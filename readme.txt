@@ -52,17 +52,18 @@ shp43, mgt55, mly66, lui76, pox44, cmd43, ewl12
 If the section already exists, the user will be displayed the current section info alongside what he is trying to add and asked if they want to replace it.
 
 
-getSection(args)
+getSections(args)
 This function is overloaded. First argument must always be the teacher ID, second argument is the grader ID
 If more than two arguments are passed in, it will return an error.
 If the only the Teacher ID is passed in, it will return all sections for that teacher.
 If both the teacher and grader ID are passed in, it will return the section for the grader.
+Always returns the section/s as an array
 
 getStudents($section_number)
 returns an array of student IDs in that section
 
 studentsToFile(section_id)
-Grabs all student IDs within a section and writes them to a txt file named "students.txt"
+Grabs all student IDs within a section and writes them to a txt file named "SECTION_ID.txt"
 
 addStudent(student_id, section_id)
 adds a student to a section
