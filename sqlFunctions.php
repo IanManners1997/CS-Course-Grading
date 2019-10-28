@@ -319,4 +319,85 @@
             studentsToFile($z);
         truncateAll();
     */
+        function addGrader($id, $section){
+            //Connect Database
+            require("db_connect.php");
+            //Trim White Space 
+            $id = ltrim(rtrim($id));
+            //See if Grader ID exists in Database
+            $sql = "SELECT DISTINCT login FROM Graders WHERE login LIKE '%$id%'";
+            $result = mysqli_query($conn,$sql);
+            $gr = $result ->fetch_assoc()['login'];
+            mysqli_free_result($result);
+            if($gr){
+                echo 'grader exists ' . $gr;
+                echo '<br>';
+            }else{
+                //Add the Grader to the database 
+                $sql = "INSERT INTO Graders (login) VALUES ('id')";
+
+            if($conn -> query($sql)==TRUE){
+                echo "New record created successfully <br>";
+            }else{
+                echo "Error: " . $sql . "<br>" . $conn->error . "<br>" ;
+            }
+           } 
+           //Add the grader to the correct section
+           $sql = "SELECT id FROM Graders WHERE login LIKE '%$id%'";
+           $result = mysqli_query($conn, $sql);
+           $grID = $result->fetch_assoc()['id']);
+            mysqli_free_result($result);
+            //Check if grader is assigned to the current section or not 
+            $sql = "SELECT gr_id FROM to_grader WHERE grader_id=$grID AND section_id = $Section";
+            $result = mysqli_query($conn, $sql);
+            if(!$result->fetch_assoc()){
+            $sql = "INSERT INTO to_grader (grader_id, section_id) VALUES ('$grID', '$section')";
+                if($conn->query($sql) === TRUE){
+                     echo "New record created successfully <br>";
+                }else{
+                echo "Error: " . $sql . "<br>" . $conn->error . "<br>";
+                }
+            }else{
+                echo "This grader already exists in the section. Grader:" . $id . " Section: " . $section . "<br>";
+            }
+
+        }
+
+        function getGrader($section){
+            require('db_connect.php');
+            $sql = "SELECT grader_id FROM to_grader WHERE section_id=$section";
+            $result = mysqli_query($conn, $sql);
+            if($grader = $result->fetch_assoc()){
+                $gid = $grader['grader_id'];
+                $sql = "SELECT login FROM Graders where id = $gid";
+                $result2 = mysqli_query($conn, $sql);
+                $ret = result2->fetch_assoc()['login'];
+            }
+            return $ret; 
+
+        }
+
+        function addInstructor($id, $section){
+            //Connect Database
+            require("db_connect.php");
+            //Trim White Space 
+            $id = ltrim(rtrim($id));
+        }
+
+        function getInstructor($section){
+            require('db_connect.php');
+            $sql = "SELECT instructor_id FROM to_instructor WHERE section_id = $section";
+            $result = mysqli_query($conn, $sql);
+            if($instructor = $result->fetch_assoc()){
+                $Iid = $instructor['instructor_id'];
+                $sql = "SELECT login FROM Instructors where id = $Iid";
+                $result2 = mysqli_query($sconn, $sql);
+                $ret = result2->fetch_assoc()['login'];
+            }
+            return $ret
+        }
+
+
+        
+
 ?>
