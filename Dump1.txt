@@ -1,0 +1,19 @@
+/*Proper Format:
+Section#{
+TEACHER_NAME,ID
+GRADER_NAME,ID
+STUDENTID,ID,ID
+}
+
+
+33302{
+Tim Hoffman, hoffmant
+Adam Ibrahim, adi11
+stx32, tst93, lmk00, eri49
+}
+
+34302{
+Test Teach2, tesstoo2
+Test Grader2, tst112
+shp43, mgt55, mly66, lui76, pox44, cmd43, ewl12
+}
