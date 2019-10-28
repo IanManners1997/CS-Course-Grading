@@ -348,7 +348,7 @@
            $grID = $result->fetch_assoc()['id']);
             mysqli_free_result($result);
             //Check if grader is assigned to the current section or not 
-            $sql = "SELECT gr_id FROM to_grader WHERE grader_id=$grID AND section_id = $Section";
+            $sql = "SELECT prim_id FROM to_grader WHERE grader_id=$grID AND section_id = $section";
             $result = mysqli_query($conn, $sql);
             if(!$result->fetch_assoc()){
             $sql = "INSERT INTO to_grader (grader_id, section_id) VALUES ('$grID', '$section')";
@@ -382,6 +382,41 @@
             require("db_connect.php");
             //Trim White Space 
             $id = ltrim(rtrim($id));
+            $sql = "SELECT DISTINCT login FROM Instructors WHERE login LIKE '%$id%'";
+            $result = mysqli_query($conn,$sql);
+            $ins = $result ->fetch_assoc()['login'];
+            mysqli_free_result($result);
+            if($ins){
+                echo 'instructor exists ' . $gr;
+                echo '<br>';
+            }else{
+                //Add the Instructor to the database 
+                $sql = "INSERT INTO Instructors (login) VALUES ('id')";
+
+            if($conn -> query($sql)==TRUE){
+                echo "New record created successfully <br>";
+            }else{
+                echo "Error: " . $sql . "<br>" . $conn->error . "<br>" ;
+            }
+           }
+            //Add the grader to the correct section
+           $sql = "SELECT id FROM Instructors WHERE login LIKE '%$id%'";
+           $result = mysqli_query($conn, $sql);
+           $insID = $result->fetch_assoc()['id']);
+            mysqli_free_result($result);
+            //Check if grader is assigned to the current section or not 
+            $sql = "SELECT prim_id FROM to_grader WHERE grader_id=$grID AND section_id = $section";
+            $result = mysqli_query($conn, $sql);
+            if(!$result->fetch_assoc()){
+            $sql = "INSERT INTO to_instructor (instructor_id, section_id) VALUES ('$insID', '$section')";
+                if($conn->query($sql) === TRUE){
+                     echo "New record created successfully <br>";
+                }else{
+                echo "Error: " . $sql . "<br>" . $conn->error . "<br>";
+                }
+            }else{
+                echo "This instructor already exists in the section. Instructor:" . $id . " Section: " . $section . "<br>";
+            }
         }
 
         function getInstructor($section){
