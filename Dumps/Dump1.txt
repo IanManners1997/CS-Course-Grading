@@ -12,9 +12,129 @@ Adam Ibrahim, adi11
 stx32, tst93, lmk00, eri49
 }
 
-34302{
-Test Teach2, tesstoo2
-Test Grader2, tst112
+33303{
+Test Teach30, tesstoo30
+Test Grader30, tst30
+shp43, mgt55, mly66, lui76, pox44, cmd43, ewl12
+}
+
+33304{
+Test Teach31, tesstoo31
+Test Grader31, tst31
+shp43, mgt55, mly66, lui76, pox44, cmd43, ewl12
+}
+
+33305{
+Test Teach32, tesstoo32
+Test Grader32, tst32
+shp43, mgt55, mly66, lui76, pox44, cmd43, ewl12
+}
+
+33306{
+Test Teach33, tesstoo33
+Test Grader33, tst33
+shp43, mgt55, mly66, lui76, pox44, cmd43, ewl12
+}
+
+33307{
+Test Teach34, tesstoo34
+Test Grader34, tst34
+shp43, mgt55, mly66, lui76, pox44, cmd43, ewl12
+}
+
+33308{
+Test Teach35, tesstoo35
+Test Grader35, tst35
+shp43, mgt55, mly66, lui76, pox44, cmd43, ewl12
+}
+
+33309{
+Test Teach36, tesstoo36
+Test Grader36, tst36
+shp43, mgt55, mly66, lui76, pox44, cmd43, ewl12
+}
+
+33310{
+Test Teach37, tesstoo37
+Test Grader37, tst37
+shp43, mgt55, mly66, lui76, pox44, cmd43, ewl12
+}
+
+33311{
+Test Teach38, tesstoo38
+Test Grader38, tst38
+shp43, mgt55, mly66, lui76, pox44, cmd43, ewl12
+}
+
+33312{
+Test Teach39, tesstoo39
+Test Grader39, tst39
+shp43, mgt55, mly66, lui76, pox44, cmd43, ewl12
+}
+
+33313{
+Test Teach40, tesstoo40
+Test Grader40, tst40
+shp43, mgt55, mly66, lui76, pox44, cmd43, ewl12
+}
+
+33314{
+Test Teach41, tesstoo41
+Test Grader41, tst41
+shp43, mgt55, mly66, lui76, pox44, cmd43, ewl12
+}
+
+33315{
+Test Teach42, tesstoo42
+Test Grader42, tst42
+shp43, mgt55, mly66, lui76, pox44, cmd43, ewl12
+}
+
+33316{
+Test Teach43, tesstoo43
+Test Grader43, tst43
+shp43, mgt55, mly66, lui76, pox44, cmd43, ewl12
+}
+
+33317{
+Test Teach44, tesstoo44
+Test Grader44, tst44
+shp43, mgt55, mly66, lui76, pox44, cmd43, ewl12
+}
+
+33318{
+Test Teach45, tesstoo45
+Test Grader45, tst45
+shp43, mgt55, mly66, lui76, pox44, cmd43, ewl12
+}
+
+33319{
+Test Teach46, tesstoo46
+Test Grader46, tst46
+shp43, mgt55, mly66, lui76, pox44, cmd43, ewl12
+}
+
+33320{
+Test Teach47, tesstoo47
+Test Grader47, tst47
+shp43, mgt55, mly66, lui76, pox44, cmd43, ewl12
+}
+
+34321{
+Test Teach48, tessto48
+Test Grader48, tst48
+shp43, mgt55, mly66, lui76, pox44, cmd43, ewl12
+}
+
+33322{
+Test Teach49, tesstoo49
+Test Grader49, tst49
+shp43, mgt55, mly66, lui76, pox44, cmd43, ewl12
+}
+
+33323{
+Test Teach50, tesstoo50
+Test Grader50, tst50
 shp43, mgt55, mly66, lui76, pox44, cmd43, ewl12
 }
 
