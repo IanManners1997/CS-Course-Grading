@@ -70,3 +70,40 @@ adds a student to a section
 if the student already exists it will return false.
 If the student is successfully added, return true.
 the section MUST already exist.
+
+dump()
+dumps the contents of the database
+
+truncateAll()
+Removes all contents from database
+
+addGrader(name, id, section)
+Adds a grader to a database and/or section.
+If the grader exists it will add to the section.
+If the section already has a grader, it will update the database with the new grader.
+If the previous grader has no more sections it will delete that grader.
+
+addTeacher(name, id, section)
+Adds a teacher to a section
+*NOTE*
+A section is not allowed to have no teacher!
+So, the only way to add a new section other than from a file
+is to add a teacher to it, creating an empty section.
+
+removeStudent(id, section)
+Removes a student from a section, if the student has no other courses, removes the student from the database.
+
+removeGrader(id, section)
+removes a grader from the section, if the grader has no more sections
+removes the grader.
+
+removeTeacher(id)
+Removes a teacher from the database
+*NOTE* Can only remove a teacher if he has no sections!
+
+removeSection($section)
+Removes a section from the db, if the students inside have no other classes, it removes them from the db too
+If the grader has no more section it removes them from the db too.
+Will not attempt to remove the teacher.
+
+
