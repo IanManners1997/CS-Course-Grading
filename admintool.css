@@ -1,0 +1,15 @@
+.column {
+    float: left;
+    width: 25%;
+}
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+.scrollable {
+    height: 200px;
+    width: 100%;
+    display: inline-block;
+    overflow-y: auto;
+  }
