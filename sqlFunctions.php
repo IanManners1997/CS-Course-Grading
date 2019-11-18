@@ -66,15 +66,51 @@
         dumpSections();
         
     }
+    function isJson($string) {
+        json_decode($string);
+        return (json_last_error() == JSON_ERROR_NONE);
+       }
     function separateFile($filename){
         $handle = fopen($filename, "r");
         if(!$handle){
             echo "<br>file does not exist.<br>";
             return false;
         }
-        //preg_match_all('\{.*\:\{.*\:.*\}\}', ) -- reads json
+        
         while(($line = fgets($handle)) !== false){
-            if(strpos($line, "{")){
+            if(isJson($line)){
+                //we have json so parse it
+                echo "We have some JSON!<br>";
+                $arr = json_decode($line, true);
+                for($i = 0; $i < sizeof($arr); $i++){
+                    $teacherJS = $arr[$i]["teacher"];
+                    $graderJS = $arr[$i]["grader"];
+                    $sectionJS = $arr[$i]["number"];
+                    $studentsJS = $arr[$i]["students"];
+                    echo "Teacher <br>";
+                    print_r($teacherJS);
+                    $tfName = $teacherJS["firstname"];
+                    $tlName = $teacherJS["lastname"];
+                    $tlogin = explode("@", $teacherJS["email"])[0];
+                    $teacher[0] = $tfName . " " . $tlName;
+                    echo $teacher[0];
+                    $teacher[1] = $tlogin;
+                    echo "Grader <br>";
+                    print_r($graderJS);
+                    $gfName = $graderJS["firstname"];
+                    $glName = $graderJS["lastname"];
+                    $glogin = explode("@", $graderJS["email"])[0];
+                    $grader[0] = $gfName . " " . $glName;
+                    $grader[1] = $glogin;
+                    echo "Section <br>";
+                    print_r($sectionJS);
+                    echo "Student <br>";
+                    print_r($studentsJS);
+                    createSection($teacher, $grader, $studentsJS, $sectionJS);
+                }
+            }
+            else if(strpos($line, "{")){
+                echo "Not json!";
                 for($i = 0; $i < 5; $i++){
                     switch($i){
                         case 0:
@@ -116,6 +152,9 @@
         $teacher = createTeacher($teacher);
         $grader = createGrader($grader);
         $sIDs = array();
+        echo "Printing students : <br>";
+        print_r($students);
+        echo "<br>";
         foreach ($students as $student){
             array_push($sIDs, createStudent(ltrim(rtrim($student))));
         }
@@ -140,22 +179,15 @@
         $tName = ltrim(rtrim($teacher[0]));
         $tName = explode(" ", $tName);
         $tID = ltrim(rtrim($teacher[1]));
-        $sql = "SELECT DISTINCT login FROM Instructors WHERE login LIKE '%$tID%'";
-        $result = mysqli_query($GLOBALS['conn'], $sql);
-        if($result->fetch_assoc()['login']){
-            echo 'teacher exists';
-            echo '<br>';
-        }else{
-            echo 'Teacher does not exist <br>';
-            //add the teacher
-            $sql = "INSERT INTO Instructors (fname, lname,login)
-            VALUES ('$tName[0]', '$tName[1]','$tID')";
+        //add the teacher
+        //let sql deal with duplicates
+        $sql = "INSERT INTO Instructors (fname, lname,login)
+        VALUES ('$tName[0]', '$tName[1]','$tID')";
 
-            if ($GLOBALS['conn']->query($sql) === TRUE) {
-                echo "Teacher record created successfully <br>";
-            } else {
-                echo "Error: " . $sql . "<br>" . $GLOBALS['conn']->error . "<br>";
-            }
+        if ($GLOBALS['conn']->query($sql) === TRUE) {
+            echo "Teacher record created successfully <br>";
+        } else {
+            echo "Error: " . $sql . "<br>" . $GLOBALS['conn']->error . "<br>";
         }
         $sql = "SELECT id FROM Instructors WHERE login LIKE '%$tID%'";
         $result = mysqli_query($GLOBALS['conn'], $sql);
@@ -170,24 +202,18 @@
         $gName = explode(" ", $gName);
         //$lName = ltrim(rtrim($grader[1]));
         $gID = ltrim(rtrim($grader[1]));
-        //check if grader exists
-        $sql = "SELECT DISTINCT login FROM Graders WHERE login LIKE '%$gID%'";
-        $result = mysqli_query($GLOBALS['conn'], $sql);
-        if($result->fetch_assoc()['login']){
-            echo 'grader exists';
-            echo '<br>';
-        }else{
-            //echo 'Grader does not exist <br>';
-            //add the grader
-            $sql = "INSERT INTO Graders (fname, lname, login)
-            VALUES ('$gName[0]', '$gName[1]', '$gID')";
+        //echo 'Grader does not exist <br>';
+        //let sql deal with duplicates
+        //add the grader
+        $sql = "INSERT INTO Graders (fname, lname, login)
+        VALUES ('$gName[0]', '$gName[1]', '$gID')";
 
-            if ($GLOBALS['conn']->query($sql) === TRUE) {
-                echo "Grader record created successfully <br>";
-            } else {
-                echo "Error: " . $sql . "<br>" . $GLOBALS['conn']->error . "<br>";
-            }
+        if ($GLOBALS['conn']->query($sql) === TRUE) {
+            echo "Grader record created successfully <br>";
+        } else {
+            echo "Error: " . $sql . "<br>" . $GLOBALS['conn']->error . "<br>";
         }
+        
         mysqli_free_result($result);
         $sql = "SELECT DISTINCT id FROM Graders WHERE login LIKE '%$gID%'";
         $result = mysqli_query($GLOBALS['conn'], $sql);
@@ -220,6 +246,11 @@
             //check if the student is already within the section
             $sql = "SELECT prim_id FROM to_student WHERE student_id=$sID AND section_id=$section";
             $result = mysqli_query($GLOBALS['conn'], $sql);
+            echo "SID: ";
+            echo $sID;
+            echo " section : ";
+            echo $section;
+            echo "<br>";
             if(!$result->fetch_assoc()){
                 $sql = "INSERT INTO to_student (student_id, section_id)
                 VALUES ('$sID', '$section')";
@@ -275,7 +306,14 @@
         if ($GLOBALS['conn']->query($sql) === TRUE) {
             echo " Section New record created successfully <br>";
         } else {
+
             echo "Error: " . $sql . "<br>" . $GLOBALS['conn']->error . "<br>";
+            echo "Updating section" . "<br>";
+            $sql = "UPDATE to_section SET instructor_id='$tSQLID', grader_id='$grader' WHERE section_id='$section'";
+            if ($GLOBALS['conn']->query($sql) === TRUE) {
+                echo "Successfully updated <br>";
+            }else
+                echo "Error: " . $sql . "<br>" . $GLOBALS['conn']->error . "<br>";
         }     
     }  
     function getSections(){
@@ -285,6 +323,7 @@
         $tNum = NULL;
         $gNum = NULL;
         $i = 0;
+        $b = false;
         foreach(func_get_args() as $arg){
             //only allow two arguments first being teacher id second be grader id
             switch($i){
@@ -305,6 +344,10 @@
         //return if no arguments were passed in
         if($i == 0){
             echo "No arguments were passed in. Please pass in either teacher ID or teacher and grader ID <br>";
+            return false;
+        }
+        if($b){
+            echo "Too many arguments, Please pass in Teacher id or teacher and grader id <br>";
             return false;
         }
         $teacher;

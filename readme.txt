@@ -19,9 +19,26 @@ Functions to access hoffmant_grading database in sqlFunctions.php:
 *note
 When ID is stated it refers to the university of pittsburgh login name without the @pitt.edu
 
-addSections( string filename )
-Opens the file of filename and add the contents to the database as long as it is in the correct format.
-The file form should be:
+separateFile( string filename )
+Opens the file of filename and add the contents to the database.
+Inserts into, if insert fails due to row existing, it updates the row.
+This now also accepts JSON!
+Javascript object format: If no grader, set grader to null
+section = {
+    number : 44300, //section number
+    teacher :   { //teacher information
+        firstname : "Tim",
+        lastname : "hoffman",
+        email : "hoffmant@pitt.edu"
+    },
+    grader : { //grader information
+        firstname : "test",
+        lastname : "testname",
+        email : "test@pitt.edu"
+    }, //array of students
+    students : ["tst32", "plo45", "lit49", "tko95", "tms90", "elp43", "rmn433", "men459", "rmi54", "fnd33", "wmn495", "fem95", "plo99", "rew23", "sdf43"]
+};
+The other file format should be:
 Section #{
 TEACHER_NAME, TEACHER_ID
 GRADER_NAME, GRADER_ID
@@ -56,7 +73,7 @@ getSections(args)
 This function is overloaded. First argument must always be the teacher ID, second argument is the grader ID
 If more than two arguments are passed in, it will return an error.
 If the only the Teacher ID is passed in, it will return all sections for that teacher.
-If both the teacher and grader ID are passed in, it will return the section for the grader.
+If both the teacher and grader ID are passed in, it will return the sections for the grader.
 Always returns the section/s as an array
 
 getStudents($section_number)
@@ -72,10 +89,11 @@ If the student is successfully added, return true.
 the section MUST already exist.
 
 dump()
-dumps the contents of the database
-
+    dumps the contents of the database
+other dumps:
+    dumpTeachers() dumpGraders() dumpStudents() dumpSections()
 truncateAll()
-Removes all contents from database
+    Removes all contents from database
 
 addGrader(name, id, section)
 Adds a grader to a database and/or section.
