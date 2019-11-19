@@ -22,7 +22,7 @@
 						Authentication Required<br />
 						<span class="error"></span>
 					</p>
-					<form action="process.php" method="POST">
+					<form action="processStudents.php" method="POST">
 						<table>
 							<tr>
 								<td>ID: (jfk63 lower case)<br></td>
