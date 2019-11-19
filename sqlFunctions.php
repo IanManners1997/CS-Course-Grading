@@ -1,5 +1,9 @@
 <?php
     require("db_connect.php");
+    /*
+        Create Tables creates every table we use in case the database gets deleted
+        *note* need to add relationships to the creation
+    */
     function createTables(){
         //in case the tables ever get deleted run this function
         echo "Creating tables <br>";
@@ -46,7 +50,10 @@
         if (!($GLOBALS['conn']->query($sql) === TRUE)) {
             echo "Error: " . $sql . "<br>" . $GLOBALS['conn']->error . "<br>";
         }
-	}
+    }
+    /*
+        Dump the entire teacher table
+    */
     function dumpTeachers(){
         $sql = "SELECT * FROM Instructors";
         $result = mysqli_query($GLOBALS['conn'], $sql);
@@ -55,6 +62,9 @@
             echo "Name: " . $res["fname"]  . " " .  $res["lname"] . " id: " . $res["login"] . " Our DB id: " . $res["id"] . "<br>"; 
         }
     }
+    /*
+        Dump the entire grader table
+    */
     function dumpGraders(){
         $sql = "SELECT * FROM Graders";
         $result = mysqli_query($GLOBALS['conn'], $sql);
@@ -63,6 +73,9 @@
             echo "Name: " . $res["name"]  . " " .  $res["lname"] . " id: " . $res["login"] . " Our DB id: " . $res["id"] . "<br>"; 
         }
     }
+    /*
+        Dump the entire student table
+    */
     function dumpStudents(){
         $sql = "SELECT * FROM Students";
         $result = mysqli_query($GLOBALS['conn'], $sql);
@@ -71,6 +84,10 @@
             echo "ID: " . $res["login"] . "<br>"; 
         }
     }
+    /*
+        Dump the entire section table
+        with section info
+    */
     function dumpSections(){
         $sql = "SELECT * FROM to_section";
         $result = mysqli_query($GLOBALS['conn'], $sql);
@@ -104,6 +121,9 @@
                 mysqli_free_result($grader);
         }
     }
+    /*
+        Dump all database info
+    */
     function dump(){
         
         dumpTeachers();
@@ -112,10 +132,18 @@
         dumpSections();
         
     }
+    /*
+        Check if a string is json
+    */
     function isJson($string) {
         json_decode($string);
         return (json_last_error() == JSON_ERROR_NONE);
     }
+    /*
+        Parse a file and add the contents to the database
+        Accepts both JSON and my format
+        To find JSON object format or my format, consult the readme.txt
+    */
     function separateFile($filename){
         $handle = fopen($filename, "r");
         if(!$handle){
@@ -204,6 +232,9 @@
         }   
     fclose($handle); //close the file
     }
+    /*
+        Initializes a section with a teacher, grader <- can be null, students, and a section number
+    */  
     function createSection($teacher, $grader, $students, $section){
         $teacher = createTeacher($teacher);
         $grader = createGrader($grader);
@@ -218,13 +249,23 @@
         addSection($teacher, $grader, $section);
         fillSection($section, $sIDs);
     }
+    /*
+        Returns teacher object by username or dies if teacher does not exist
+    */
     function getTeacherByUsername($tID){
         $sql = "SELECT id FROM Instructors WHERE login LIKE '%$tID%'";
         $result = mysqli_query($GLOBALS['conn'], $sql);
-        $teacher = $result->fetch_assoc();
+        $teacher = $result->fetch_assoc() or die;
         mysqli_free_result($result);
         return $teacher;
     }
+    /*
+        Returns teacher object by database ID, 
+        this can be very useful in conjunction with other functions
+        such as getting a section, which carries the teacher id
+        then getting the teacher from that section
+        or dies if teacher does not exist
+    */
     function getTeacherByID($id){
         $sql = "SELECT * FROM Instructors WHERE id=$id";
         $result = mysqli_query($GLOBALS['conn'], $sql);
@@ -233,6 +274,9 @@
         mysqli_free_result($result);
         return $teacher;
     }
+    /*
+        Returns the teacher of a section number
+    */
     function getTeacherBySection($section){
         $sql = "SELECT * FROM to_section WHERE section_id=$section";
         $result = mysqli_query($GLOBALS['conn'], $sql);
@@ -240,6 +284,9 @@
         $tid = $section["instructor_id"];
         return getTeacherById($tid);
     }
+    /*
+        returns the grader of a section
+    */
     function getGraderBySection($section){
         $sql = "SELECT * FROM to_section WHERE section_id=$section";
         $result = mysqli_query($GLOBALS['conn'], $sql);
@@ -248,6 +295,9 @@
         $gid = $section["grader_id"];
         return getGraderById($gid);
     }
+    /*
+        Returns an array of teachers for whom a Grader grades
+    */
     function getTeachersByGraderUsername($id){
         $grader = getGraderByUsername($id);
         $sections = getSections(-1, $id);
@@ -258,6 +308,9 @@
         print_r($arr);
         return $arr;
     }
+    /*
+        Returns an array of Graders whom grade for a Teacher
+    */
     function getGradersByTeacherUsername($id){
         $teacher = getTeacherByUsername($id);
         $sections = getSections($id);
@@ -270,6 +323,9 @@
         print_r($arr);
         return $arr;
     }
+    /*
+        Returns a grader by DATABASE id
+    */
     function getGraderByID($id){
         $sql = "SELECT * FROM Graders WHERE id=$id";
         $result = mysqli_query($GLOBALS['conn'], $sql);
@@ -279,6 +335,9 @@
         mysqli_free_result($result);
         return $grader;
     }
+    /*
+        returns grader by login/username
+    */
     function getGraderByUsername($gID){
         $sql = "SELECT DISTINCT id FROM Graders WHERE login LIKE '%$gID%'";
         $result = mysqli_query($GLOBALS['conn'], $sql);
@@ -286,6 +345,11 @@
         mysqli_free_result($result);
         return $grader;
     }
+    /*
+        Create a teacher from a teacher object
+        teacher[0] -> firstname lastname
+        teacher[1] -> login without @pitt.edu
+    */
     function createTeacher($teacher){
         $tName = ltrim(rtrim($teacher[0]));
         $tName = explode(" ", $tName);
@@ -306,6 +370,11 @@
         mysqli_free_result($result);
         return $teacher;
     }
+    /*
+        Create a grader from a grader object
+        grader[0] -> firstname lastname
+        grader[1] -> login without @pitt.edu
+    */
     function createGrader($grader){
         //make sure no whitespace
         //$grader = explode(" ", $grader);
@@ -331,6 +400,10 @@
         mysqli_free_result($result);
         return $grader;
     }
+    /*
+        Create a student, student is just an ID
+        Student IDs are checked to be between 3 and 6 characters
+    */
     function createStudent($student){
         //make sure the student id has no white space
         $student = ltrim(rtrim($student)); 
@@ -355,6 +428,9 @@
         mysqli_free_result($result);
         return $student;
     }
+    /*
+        Fill a section with an array of student IDs
+    */
     function fillSection($section, $sIDs){
         print_r($sIDs);
         foreach ($sIDs as $sID){
@@ -376,11 +452,14 @@
                     echo "Error: " . $sql . "<br>" . $GLOBALS['conn']->error . "<br>";
                 }
             }else{
-                echo "This student already exists in the section. SID:" . $sID . " Section: " . $section . "<br>";
+                echo "This student already exists in the section. SID:" . $sID . " Section: " . $section . " or section does not exist" . "<br>";
             }
             mysqli_free_result($result);
         }
     }
+    /*
+        Update the teacher via teacher object for a certain section
+    */
     function updateTeacherSection($teacher, $section){
         $tSQLID = $teacher['id'];
         $sql = "UPDATE to_section SET instructor_id=$tSQLID WHERE section_id=$section";
@@ -391,6 +470,9 @@
             echo "Error: " . $sql . "<br>" . $GLOBALS['conn']->error . "<br>";
         } 
     }
+    /*
+        Update the graderr via grader object for a certain section
+    */
     function updateGraderSection($grader, $section){
         $gSQLID = $grader['id'];
         $sql = "UPDATE to_section SET grader_id=$gSQLID WHERE section_id=$section";
@@ -401,6 +483,10 @@
             echo "Error: " . $sql . "<br>" . $GLOBALS['conn']->error . "<br>";
         }
     }
+    /*
+        create a section by grader and teacher
+        if you use this function be sure to fill the section with students
+    */
     function addSection($teacher, $grader, $section){
         require("db_connect.php");
         //create the to section relationship & update incase it already existed with a  previous grader/teacher
@@ -432,6 +518,12 @@
                 echo "Error: " . $sql . "<br>" . $GLOBALS['conn']->error . "<br>";
         }     
     }  
+    /*
+        Get sections of a teacher or grader
+        for teacher just pass in teacher username
+        for teacher and grader pass in teacher username then grader username
+        for only grader pass in -1 then grader username
+    */
     function getSections(){
         require('db_connect.php');
         $tID = NULL;
@@ -515,6 +607,9 @@
         }
         mysqli_free_result($result);
     }
+    /*
+        returns an array of students in a given section
+    */
     function getStudents($section){
         $sql = "SELECT student_id FROM to_student WHERE section_id=$section";
         $result = mysqli_query($GLOBALS['conn'], $sql);
@@ -531,6 +626,9 @@
         }
         return $arr;
     }
+    /*
+        Truncates the entire database
+    */
     function truncateAll(){
         $sql = "SET FOREIGN_KEY_CHECKS=0";
         mysqli_query($GLOBALS['conn'], $sql);
@@ -547,6 +645,9 @@
         $sql = "SET FOREIGN_KEY_CHECKS=1";
         mysqli_query($GLOBALS['conn'], $sql);
     }
+    /*
+        Takes in a section # and writes all the students within that section to a file named after the section number
+    */
     function studentsToFile($section){
         $i = 0;
         $toWrite = $section.'.txt';
@@ -569,6 +670,10 @@
         }
         
     }
+    /*
+        Removes a section from the database
+        cleans up any students that have no classes left
+    */
     function removeSection($section){
         //get grader from the section
         $sql = "SELECT grader_id FROM to_section WHERE section_id=$section";
@@ -623,6 +728,13 @@
             }
         }
     }
+    /*
+        Adds or updates a grader to the database via name, username, and section number
+        Graders cannot initialize sections, teachers must
+        aka you cannot have a section without a teacher
+        you can have a section without a grader
+
+    */
     function addGrader($name, $id, $section){
         echo "Name is: " . $name;
         $sql = "SELECT * FROM to_section WHERE section_id=$section";
@@ -664,6 +776,9 @@
         }else
             echo "There was no previous grader <br>";
     }
+    /*
+        Adds a teacher to a section, updates the section and creates the section if needed
+    */
     function addTeacher($name, $id, $section){
         $sql = "SELECT * FROM to_section WHERE section_id=$section";
         $result = mysqli_query($GLOBALS['conn'], $sql);
@@ -687,6 +802,9 @@
             echo "Section updated.<br>";
         }
     }
+    /*
+        Removes a grader from a section
+    */
     function removeGraderS($id, $section){
         $sql = "SELECT * FROM Graders WHERE login LIKE '%$id%'";
         $result = mysqli_query($GLOBALS['conn'], $sql);
@@ -722,6 +840,9 @@
             }
         }
     }
+    /*
+        Removes a grader entirely, from every section and the database
+    */
     function removeGraderC($id){
         $sql = "SELECT * FROM Graders WHERE login LIKE '%$id%'";
         $result = mysqli_query($GLOBALS['conn'], $sql);
@@ -751,6 +872,9 @@
             $result = mysqli_query($GLOBALS['conn'], $sql);
         }
     }
+    /*
+        Removes a teacher from the database, the teacher must have no classes
+    */
     function removeTeacher($id){
         $sql = "SELECT * FROM Instructors WHERE login LIKE '%$id%'";
         $result = mysqli_query($GLOBALS['conn'], $sql);
@@ -780,6 +904,9 @@
             $result = mysqli_query($GLOBALS['conn'], $sql);
         }
     }
+    /*
+        Adds a student to a section, creates the student if needed
+    */
     function addStudent($id, $section){
         $id = ltrim(rtrim($id));
         $sql = "SELECT * FROM to_section WHERE section_id=$section";
@@ -819,6 +946,9 @@
         }
         mysqli_free_result($result);
     }
+    /*
+        Removes a student from a section
+    */
     function removeStudent($id, $section){
         echo $id . "<br>";
         echo $section . "<br>";
