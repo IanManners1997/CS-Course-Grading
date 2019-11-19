@@ -1,6 +1,52 @@
 <?php
-    
     require("db_connect.php");
+    function createTables(){
+        //in case the tables ever get deleted run this function
+        echo "Creating tables <br>";
+		$sql = "CREATE TABLE Graders (
+			id	INT PRIMARY KEY AUTO_INCREMENT,
+			fname VARCHAR(30) NOT NULL,
+			lname VARCHAR(30) NOT NULL,
+			login VARCHAR(30) NOT NULL,
+            CONSTRAINT login_u UNIQUE (login));";
+        if (!($GLOBALS['conn']->query($sql) === TRUE)) {
+            echo "Error: " . $sql . "<br>" . $GLOBALS['conn']->error . "<br>";
+        }
+        $sql = "CREATE TABLE Instructors (
+			id	int PRIMARY KEY AUTO_INCREMENT,
+			fname varchar(30) NOT NULL,
+			lname varchar(30) NOT NULL,
+			login varchar(30) NOT NULL,
+            CONSTRAINT login_u UNIQUE (login));";
+        if (!($GLOBALS['conn']->query($sql) === TRUE)) {
+            echo "Error: " . $sql . "<br>" . $GLOBALS['conn']->error . "<br>";
+        }
+        $sql = "CREATE TABLE Students (
+			id int PRIMARY KEY AUTO_INCREMENT,
+			login varchar(30) NOT NULL,
+            CONSTRAINT login_u UNIQUE (login));";
+        if (!($GLOBALS['conn']->query($sql) === TRUE)) {
+            echo "Error: " . $sql . "<br>" . $GLOBALS['conn']->error . "<br>";
+        }
+        $sql = "CREATE TABLE to_section (
+			prim_id	int PRIMARY KEY AUTO_INCREMENT,
+			section_id int NOT NULL,
+            instructor_id int NOT NULL,
+            grader_id int NULL,
+            CONSTRAINT section_u UNIQUE (section_id));
+            ";
+        if (!($GLOBALS['conn']->query($sql) === TRUE)) {
+            echo "Error: " . $sql . "<br>" . $GLOBALS['conn']->error . "<br>";
+        }
+        $sql = "CREATE TABLE to_student (
+			prim_id	int PRIMARY KEY AUTO_INCREMENT,
+			student_id int NOT NULL,
+            section_id int NOT NULL);
+            ";
+        if (!($GLOBALS['conn']->query($sql) === TRUE)) {
+            echo "Error: " . $sql . "<br>" . $GLOBALS['conn']->error . "<br>";
+        }
+	}
     function dumpTeachers(){
         $sql = "SELECT * FROM Instructors";
         $result = mysqli_query($GLOBALS['conn'], $sql);
@@ -69,7 +115,7 @@
     function isJson($string) {
         json_decode($string);
         return (json_last_error() == JSON_ERROR_NONE);
-       }
+    }
     function separateFile($filename){
         $handle = fopen($filename, "r");
         if(!$handle){
@@ -83,18 +129,24 @@
                 echo "We have some JSON!<br>";
                 $arr = json_decode($line, true);
                 for($i = 0; $i < sizeof($arr); $i++){
+                    //separate the json
                     $teacherJS = $arr[$i]["teacher"];
                     $graderJS = $arr[$i]["grader"];
                     $sectionJS = $arr[$i]["number"];
                     $studentsJS = $arr[$i]["students"];
+
                     echo "Teacher <br>";
                     print_r($teacherJS);
+
+                    //Set the teacher info
                     $tfName = $teacherJS["firstname"];
                     $tlName = $teacherJS["lastname"];
                     $tlogin = explode("@", $teacherJS["email"])[0];
                     $teacher[0] = $tfName . " " . $tlName;
                     echo $teacher[0];
                     $teacher[1] = $tlogin;
+
+                    //set the grader info
                     echo "Grader <br>";
                     print_r($graderJS);
                     $gfName = $graderJS["firstname"];
@@ -102,10 +154,14 @@
                     $glogin = explode("@", $graderJS["email"])[0];
                     $grader[0] = $gfName . " " . $glName;
                     $grader[1] = $glogin;
+
+                    //set section info
                     echo "Section <br>";
                     print_r($sectionJS);
                     echo "Student <br>";
                     print_r($studentsJS);
+
+                    //create each section
                     createSection($teacher, $grader, $studentsJS, $sectionJS);
                 }
             }
@@ -156,19 +212,74 @@
         print_r($students);
         echo "<br>";
         foreach ($students as $student){
-            array_push($sIDs, createStudent(ltrim(rtrim($student))));
+            if($curstudent = createStudent(ltrim(rtrim($student))))
+            array_push($sIDs, $curstudent);
         }
         addSection($teacher, $grader, $section);
         fillSection($section, $sIDs);
     }
-    function getTeacher($tID){
+    function getTeacherByUsername($tID){
         $sql = "SELECT id FROM Instructors WHERE login LIKE '%$tID%'";
         $result = mysqli_query($GLOBALS['conn'], $sql);
         $teacher = $result->fetch_assoc();
         mysqli_free_result($result);
         return $teacher;
     }
-    function getGrader($gID){
+    function getTeacherByID($id){
+        $sql = "SELECT * FROM Instructors WHERE id=$id";
+        $result = mysqli_query($GLOBALS['conn'], $sql);
+        $teacher = $result->fetch_assoc() or die;
+        echo $teacher;
+        mysqli_free_result($result);
+        return $teacher;
+    }
+    function getTeacherBySection($section){
+        $sql = "SELECT * FROM to_section WHERE section_id=$section";
+        $result = mysqli_query($GLOBALS['conn'], $sql);
+        $section = $result->fetch_assoc() or die;
+        $tid = $section["instructor_id"];
+        return getTeacherById($tid);
+    }
+    function getGraderBySection($section){
+        $sql = "SELECT * FROM to_section WHERE section_id=$section";
+        $result = mysqli_query($GLOBALS['conn'], $sql);
+        echo $section . " is the section <br>";
+        $section = $result->fetch_assoc() or die;
+        $gid = $section["grader_id"];
+        return getGraderById($gid);
+    }
+    function getTeachersByGraderUsername($id){
+        $grader = getGraderByUsername($id);
+        $sections = getSections(-1, $id);
+        $arr = [];
+        for($i = 0; $i < sizeof($sections); $i++){
+            array_push($arr, getTeacherBySection($sections[$i]));
+        }
+        print_r($arr);
+        return $arr;
+    }
+    function getGradersByTeacherUsername($id){
+        $teacher = getTeacherByUsername($id);
+        $sections = getSections($id);
+        $arr = [];
+        print_r($sections);
+        for($i = 0; $i < sizeof($sections); $i++){
+            array_push($arr, getGraderBySection($sections[$i]));
+        }
+
+        print_r($arr);
+        return $arr;
+    }
+    function getGraderByID($id){
+        $sql = "SELECT * FROM Graders WHERE id=$id";
+        $result = mysqli_query($GLOBALS['conn'], $sql);
+        $grader = $result->fetch_assoc() or die;
+        echo "getting grader";
+        echo $grader;
+        mysqli_free_result($result);
+        return $grader;
+    }
+    function getGraderByUsername($gID){
         $sql = "SELECT DISTINCT id FROM Graders WHERE login LIKE '%$gID%'";
         $result = mysqli_query($GLOBALS['conn'], $sql);
         $grader = $result->fetch_assoc();
@@ -214,7 +325,6 @@
             echo "Error: " . $sql . "<br>" . $GLOBALS['conn']->error . "<br>";
         }
         
-        mysqli_free_result($result);
         $sql = "SELECT DISTINCT id FROM Graders WHERE login LIKE '%$gID%'";
         $result = mysqli_query($GLOBALS['conn'], $sql);
         $grader = $result->fetch_assoc();
@@ -224,6 +334,10 @@
     function createStudent($student){
         //make sure the student id has no white space
         $student = ltrim(rtrim($student)); 
+        if(strlen($student) < 3 || strlen($student) > 6){
+            echo "Error adding students, student id should be between 3 and 6 characters" . "<br>";
+            return null;
+        }
         echo $student;
         echo "<br>";
         //add the student to the student db
@@ -231,8 +345,10 @@
         VALUES ('$student')";
         if ($GLOBALS['conn']->query($sql) === TRUE) 
             echo "New record created successfully <br>";
-        else 
+        else {
             echo "Student is already in the database.<br>";
+            echo "Error: " . $sql . "<br>" . $GLOBALS['conn']->error . "<br>";
+        }
         $sql = "SELECT id FROM Students WHERE login LIKE '%$student%'";
         $result = mysqli_query($GLOBALS['conn'], $sql);
         $student = $result->fetch_assoc()['id'];
@@ -265,7 +381,7 @@
             mysqli_free_result($result);
         }
     }
-    function updateTeacher($teacher, $section){
+    function updateTeacherSection($teacher, $section){
         $tSQLID = $teacher['id'];
         $sql = "UPDATE to_section SET instructor_id=$tSQLID WHERE section_id=$section";
         mysqli_free_result($result);
@@ -275,7 +391,7 @@
             echo "Error: " . $sql . "<br>" . $GLOBALS['conn']->error . "<br>";
         } 
     }
-    function updateGrader($grader, $section){
+    function updateGraderSection($grader, $section){
         $gSQLID = $grader['id'];
         $sql = "UPDATE to_section SET grader_id=$gSQLID WHERE section_id=$section";
         mysqli_free_result($result);
@@ -354,12 +470,12 @@
         $grader;
         $tNum;
         if(!($tID == -1)){
-            $teacher = getTeacher($tID);
+            $teacher = getTeacherByUsername($tID);
             $tNum = $teacher['id'];
         }
         //if a grader id was passed in make sure it exists
         if($gID){
-            $grader = getGrader($gID);
+            $grader = getGraderByUsername($gID);
             $gNum = $grader['id'];
             //have teacher and grader ID from database
             //get the section number
@@ -617,7 +733,7 @@
         $sql = "SELECT section_id FROM to_section WHERE grader_id=$gID";
         $result = mysqli_query($GLOBALS['conn'], $sql);
         if(!$result){
-            echo "Could nice find any sections with grader, removing grader.";
+            echo "Could not find any sections with grader, removing grader.";
         }
         while($a = $result->fetch_assoc()){
             print_r($a);

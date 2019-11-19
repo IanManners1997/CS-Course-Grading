@@ -292,6 +292,7 @@
             if($id = $_POST["id"]){
                 echo "Adding all students to a text file<br>";
                 $d = getSections(-1, $id);
+                
                 for($i = 0; $i < sizeof($d); $i++)
                     studentsToFile($d[$i]);
             }else{
