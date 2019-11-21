@@ -1,14 +1,3 @@
-<?php
-	include 'db_connect.php';
-	include 'sqlFunctions.php';
-	session_start();
-	$arr = getSections($_SESSION['log']);
-	$counter = 0;
-	$str1 = $arr[0];
-	$str2 = $arr[1];
-	?>
-
-
 <html>
 <head>
 	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
@@ -66,10 +55,11 @@ body{
 						
 	<div id="container">
 	<ul>
-		<li>Choose Section
+		<li>Courses
 		<ul>
-			<a value = "<?php echo $str1; ?>" href = "studentLogin.php"><li> "<?php echo $str1; ?>"</li></a>
-			<a href = "graderLogin.php"> <li>"<?php echo $str2; ?>"</li></a>
+			<a href = "instructorLogin.php"<li>Instructor</li></a>
+			<a href = "studentLogin.php">Student</li>
+			<a href = "graderlogin.php"<li>Grader</li>
 		</ul>
 		</li>
 	</ul>

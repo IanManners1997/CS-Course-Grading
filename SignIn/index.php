@@ -58,8 +58,8 @@ body{
 		<li>Sign In As
 		<ul>
 			<a href = "instructorLogin.php"<li>Instructor</li></a>
-			<a href = "studentLogin.php">Student</li>
-			<a href = "graderlogin.php"<li>Grader</li>
+			<a href = "studentLogin.php">Grader</li>
+			<a href = "graderlogin.php"<li>Admin</li>
 		</ul>
 		</li>
 	</ul>
