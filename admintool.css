@@ -1,15 +1,33 @@
 .column {
+    text-align: center;
     float: left;
-    width: 25%;
+    width: 20%;
+}
+.header{
+    position: absolute;
+    bottom: 85%;
+    height: 10%;
+    width: 100%;
 }
 .row:after {
-    content: "";
+    width: 100%;
     display: table;
     clear: both;
 }
 .scrollable {
-    height: 200px;
+    position: absolute;
+    background-color: rgb(95, 105, 146);
+    height: 60%;
     width: 100%;
     display: inline-block;
     overflow-y: auto;
-  }
+    bottom: 0%;
+}
+.displayDivClass{
+    position: absolute;
+    display: inline-block;
+    background-color: rgb(70, 70, 131);
+    height: 25%;
+    width: 100%;
+    bottom: 60%;
+}
